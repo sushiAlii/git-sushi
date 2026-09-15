@@ -1,50 +1,41 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { LoginScreen } from "./components/LoginScreen";
+import { SignedInScreen } from "./components/SignedInScreen";
+import { useDeviceCode, useSignIn } from "./hooks/useSignIn";
+import { useSignOut } from "./hooks/useSignOut";
+import { useToken } from "./hooks/useToken";
+import { useViewer } from "./hooks/useViewer";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const token = useToken();
+  const viewer = useViewer();
+  const deviceCode = useDeviceCode();
+  const signIn = useSignIn();
+  const signOut = useSignOut();
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
+  if (token.isPending) {
+    return null;
+  }
+
+  if (viewer.data) {
+    return <SignedInScreen viewer={viewer.data} onSignOut={() => signOut.mutate()} />;
+  }
+
+  if (token.data) {
+    return null;
+  }
+
+  if (deviceCode.data) {
+    return (
+      <LoginScreen
+        status="awaiting-device"
+        deviceCode={deviceCode.data}
+        onSignIn={() => signIn.mutate()}
+      />
+    );
   }
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+    <LoginScreen status="signed-out" error={signIn.error?.message} onSignIn={() => signIn.mutate()} />
   );
 }
 

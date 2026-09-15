@@ -6,6 +6,8 @@ Built with [Tauri](https://tauri.app/) (Rust) + React + TypeScript.
 
 ## Development
 
+Copy `src-tauri/.env.example` to `src-tauri/.env` and fill in a GitHub OAuth App Client ID (create one at [github.com/settings/developers](https://github.com/settings/developers), with **Enable Device Flow** checked).
+
 ```sh
 yarn install
 yarn tauri dev
