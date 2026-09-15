@@ -1,4 +1,5 @@
 import type { Viewer } from "../lib/github";
+import { PullRequestList } from "./PullRequestList";
 import styles from "./SignedInScreen.module.css";
 
 type Props = {
@@ -18,7 +19,9 @@ export function SignedInScreen({ viewer, onSignOut }: Props) {
           Sign out
         </button>
       </header>
-      <div className={styles.body}>Pull request list coming next.</div>
+      <div className={styles.body}>
+        <PullRequestList />
+      </div>
     </div>
   );
 }
